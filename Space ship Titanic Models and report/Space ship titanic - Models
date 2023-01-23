@@ -1,0 +1,694 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "Z5Ls7s2wsI_Y"
+      },
+      "outputs": [],
+      "source": [
+        "import numpy as np\n",
+        "import pandas as pd\n",
+        "import random as rndm\n",
+        "import matplotlib.pyplot as plt\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from google.colab import drive\n",
+        "drive.mount('/content/drive')\n"
+      ],
+      "metadata": {
+        "id": "rFbRsupisOa9"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "tr= pd.read_csv('/content/drive/My Drive/EAPROJECT/train.csv', parse_dates=True)#, index_col=\"PassengerId\"\n",
+        "te = pd.read_csv('/content/drive/My Drive/EAPROJECT/test.csv', parse_dates=True)"
+      ],
+      "metadata": {
+        "id": "bfuNGOBksP8W"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "subm = te[['PassengerId']]\n",
+        "tr.head()"
+      ],
+      "metadata": {
+        "id": "YWS2g67ksSQS"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "te.head()"
+      ],
+      "metadata": {
+        "id": "dsupaxQMsTv2"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "for i in tr.columns:\n",
+        "  print(i) #print column names in train set"
+      ],
+      "metadata": {
+        "id": "hNfQdOszsVjP"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "a=tr.isnull().sum()\n",
+        "a.sort_values(ascending=True) # sort count of nulls from low to high for train set"
+      ],
+      "metadata": {
+        "id": "ZWs4KJuksXRn"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "b=te.isnull().sum()\n",
+        "b.sort_values(ascending=True) # sort count of nulls from low to high for test set"
+      ],
+      "metadata": {
+        "id": "3XSRvel8sYAQ"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "tr.describe()"
+      ],
+      "metadata": {
+        "id": "gZPVYj-QsbW1"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "te.describe()"
+      ],
+      "metadata": {
+        "id": "S5ugK3udsczT"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "tr.shape\n",
+        "#tr.head()"
+      ],
+      "metadata": {
+        "id": "p4W-3UUPsf0x"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "tr[['cabindeck','cabinnum','cabinside']] = tr.Cabin.str.split(\"/\", expand=True)#split cabin to 3 different columns \n",
+        "tr=tr.drop(['Cabin'], axis=1)\n",
+        "tr.shape\n",
+        "#tr.head() "
+      ],
+      "metadata": {
+        "id": "phvZregPshA0"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "te[['cabindeck','cabinnum','cabinside']] = te.Cabin.str.split(\"/\", expand=True)#split cabin to 3 different columns \n",
+        "te=te.drop(['Cabin'], axis=1)\n",
+        "te.shape\n",
+        "te.head()"
+      ],
+      "metadata": {
+        "id": "ZXzxuxlYsiV-"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import seaborn as sns\n",
+        "sns.catplot(data=tr, x=\"HomePlanet\", y=\"Transported\", kind=\"point\") #plot catagorical column against target\n"
+      ],
+      "metadata": {
+        "id": "6_F3PnhosjvB"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "sns.catplot(data=tr, x=\"Destination\", y=\"Transported\", kind=\"point\") #plot catagorical column against target\n"
+      ],
+      "metadata": {
+        "id": "r8qCoX32slHm"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "sns.catplot(data=tr, x=\"CryoSleep\", y=\"Transported\", kind=\"point\")#plot catagorical column against target\n"
+      ],
+      "metadata": {
+        "id": "tT7tJPansmGm"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "sns.catplot(data=tr, x=\"cabindeck\", y=\"Transported\", kind=\"point\")#plot catagorical column against target\n"
+      ],
+      "metadata": {
+        "id": "rXH7NDq4snLn"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "sns.catplot(data=tr, x=\"cabinnum\", y=\"Transported\", kind=\"point\")#plot catagorical column against target\n"
+      ],
+      "metadata": {
+        "id": "2nWXYlRxsoUQ"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "sns.catplot(data=tr, x=\"cabinside\", y=\"Transported\", kind=\"point\")#plot catagorical column against target\n"
+      ],
+      "metadata": {
+        "id": "pm3CaiNEspbn"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "sns.catplot(data=tr, x=\"VIP\", y=\"Transported\", kind=\"point\")#plot catagorical column against target"
+      ],
+      "metadata": {
+        "id": "OLXNrUKAsq3z"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import seaborn as sns\n",
+        "sns.catplot(data=te, x=\"HomePlanet\", y=\"Transported\", kind=\"bar\")\n",
+        "sns.catplot(data=te, x=\"Destination\", y=\"Transported\", kind=\"bar\")\n",
+        "sns.catplot(data=te, x=\"CryoSleep\", y=\"Transported\", kind=\"bar\")\n",
+        "sns.catplot(data=te, x=\"cabindeck\", y=\"Transported\", kind=\"bar\")\n",
+        "sns.catplot(data=te, x=\"cabinnum\", y=\"Transported\", kind=\"bar\")\n",
+        "sns.catplot(data=te, x=\"cabinside\", y=\"Transported\", kind=\"bar\") #plot catagorical column against target\n",
+        "#sns.catplot(data=tr, x=\"VIP\", y=\"Transported\", kind=\"bar\") "
+      ],
+      "metadata": {
+        "id": "0adGUTvhssfM"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "plt.figure(figsize=(12, 8))\n",
+        "sns.heatmap(tr.corr(),annot=True, cmap=\"YlGnBu\") #correlation plot for trainset\n",
+        "plt.show()"
+      ],
+      "metadata": {
+        "id": "IuQbbj7QsuYR"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "plt.figure(figsize=(12, 8))\n",
+        "sns.heatmap(te.corr(),annot=True, cmap=\"YlGnBu\") #correlation plot for test set\n",
+        "plt.show()"
+      ],
+      "metadata": {
+        "id": "UxvfMKFgsvqC"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "tr=tr.drop(['Name'],axis=1)\n",
+        "te=te.drop(['Name'],axis=1)\n",
+        "tr =tr.drop(['PassengerId'], axis=1)\n",
+        "te=te.drop(['PassengerId'], axis=1) # drop name"
+      ],
+      "metadata": {
+        "id": "YVN63102sxF-"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "tr.HomePlanet.unique()"
+      ],
+      "metadata": {
+        "id": "F940r84asyRg"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "tr['HomePlanet']=pd.factorize(tr.HomePlanet)[0]\n",
+        "tr['cabindeck']=pd.factorize(tr.cabindeck)[0]\n",
+        "\n",
+        "tr['cabinside']=pd.factorize(tr.cabinside)[0]\n",
+        "tr['Destination']=pd.factorize(tr.Destination)[0]\n",
+        "tr.head() #factorise categorical to numeric"
+      ],
+      "metadata": {
+        "id": "WapD353wszkU"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "te['HomePlanet']=pd.factorize(te.HomePlanet)[0]\n",
+        "te['cabindeck']=pd.factorize(te.cabindeck)[0]\n",
+        "\n",
+        "te['cabinside']=pd.factorize(te.cabinside)[0]\n",
+        "te['Destination']=pd.factorize(te.Destination)[0]\n",
+        "te.head() #factorise categorical to numeric"
+      ],
+      "metadata": {
+        "id": "LqLXtkI6s1EZ"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "tr[['CryoSleep', 'VIP','Transported']] = (tr[['CryoSleep', 'VIP','Transported']] == True).astype(int)\n",
+        "te[['CryoSleep', 'VIP']] = (te[['CryoSleep', 'VIP']] == True).astype(int)\n",
+        "tr.head() #convert object to numeric(int)"
+      ],
+      "metadata": {
+        "id": "G3tUjc3Qs2Zk"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "tr.isnull().sum() #count of null records in train"
+      ],
+      "metadata": {
+        "id": "9Lo-HCvAs30M"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "te.isnull().sum() #count of null records in test\n"
+      ],
+      "metadata": {
+        "id": "nkQzm3D-s45_"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "tr=tr.interpolate(method='linear') \n",
+        "te=te.interpolate(method='linear') #eliminate nulls in test abd train with linear interpollation"
+      ],
+      "metadata": {
+        "id": "gkc3XeVGs6Mi"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "tr['cabinnum']= tr['cabinnum'].replace(np.nan, tr['cabinnum'].mode()[0]) #replace nulls with 0 for cabin, as this is not included in previous step\n",
+        "te['cabinnum']= te['cabinnum'].replace(np.nan, te['cabinnum'].mode()[0])\n",
+        "#tr['cabinnum'].fillna(tr['cabinnum'].mode()[0])\n",
+        "#tr['cabinnum']=tr['cabinnum'].astype(int)\n",
+        "#te['cabinnum']=te['cabinnum'].mode()[0]\n",
+        "#te['cabinnum']= te['cabinnum'].replace(np.nan, 0)\n"
+      ],
+      "metadata": {
+        "id": "ESSiazcFs7cv"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "trainX = tr.drop(\"Transported\",axis=1) # split train with trial and target\n",
+        "trainY = tr[\"Transported\"]\n",
+        "testX = te\n",
+        "trainX.shape, testX.shape, trainY.shape, tr.shape\n"
+      ],
+      "metadata": {
+        "id": "pAqC7ECSs8wV"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#Logistic Regression\n",
+        "from sklearn.linear_model import LogisticRegression\n",
+        "from sklearn.metrics import accuracy_score\n",
+        "\n",
+        "modelglm = LogisticRegression()\n",
+        "modelglm.fit(trainX, trainY)\n",
+        "predg = modelglm.predict(trainX) #predict train\n",
+        "predgt = modelknn.predict(testX) #predict test\n",
+        "accg = accuracy_score(trainY, predg) #79 accuracy of train prediction compared with actual result in Y\n"
+      ],
+      "metadata": {
+        "id": "Mcz-Aav7s969"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "glmop= pd.read_csv('/content/drive/My Drive/EAPROJECT/sample_submission.csv', parse_dates=True)\n",
+        "#GLM OUTPUT \n",
+        "glmop.Transported = predgt\n",
+        "glmop['Transported'] = glmop['Transported'].astype(bool)\n",
+        "glmop.head()\n",
+        "\n",
+        "#glmop.to_csv('/content/drive/My Drive/EAPROJECT/out1.csv',index=False)"
+      ],
+      "metadata": {
+        "id": "rQ9GE6cDs98H"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#tr.dtypes\n",
+        "tr.cabinnum.astype(int)\n",
+        "te.cabinnum.astype(int)"
+      ],
+      "metadata": {
+        "id": "U8Af-vG4tBiy"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#KNN\n",
+        "from sklearn.neighbors import KNeighborsClassifier\n",
+        "modelknn = KNeighborsClassifier(n_neighbors=3,weights='uniform', p=1)\n",
+        "modelknn.fit(trainX, trainY)\n",
+        "predknn = modelknn.predict(trainX)\n",
+        "accknn = accuracy_score(trainY, predknn)\n",
+        "accknn# 86.2\n",
+        "\n",
+        "predknnt = modelknn.predict(testX)\n",
+        "predknnt"
+      ],
+      "metadata": {
+        "id": "ZXDKC5wstBkH"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#KNN Output\n",
+        "submissionk = glmop\n",
+        "submissionk.Transported= predknnt.astype(bool)\n",
+        "submissionk.head()\n",
+        "#submissionk.to_csv('/content/drive/My Drive/EAoutputs/knnop2.csv',index=False)"
+      ],
+      "metadata": {
+        "id": "af6yC8tatEDA"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#SVC\n",
+        "from sklearn.svm import SVC\n",
+        "modelsvc = SVC()\n",
+        "modelsvc.fit(trainX, trainY)\n",
+        "predsvc = modelsvc.predict(trainX)\n",
+        "\n",
+        "predst = modelsvc.predict(testX)\n",
+        "accsv = accuracy_score(trainY, predsvc)\n",
+        "accsv #78.5\n",
+        "submissions = glmop\n",
+        "submissions.Transported= predrft.astype(bool)\n",
+        "submissions.head()"
+      ],
+      "metadata": {
+        "id": "Z1KH7L-otHSA"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#SVC OUTPUT \n",
+        "\n",
+        "#submissions.to_csv('/content/drive/My Drive/EAPROJECT/out4.csv',index=False)\n",
+        "submissions.head()"
+      ],
+      "metadata": {
+        "id": "jo_MoUSktIvy"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "XwEBvr2PtKCx"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import xgboost\n",
+        "mod = xgboost.XGBClassifier(max_depth=2, n_estimators=500, learning_rate=0.8)\n",
+        "mod.fit(trainX, trainY)\n",
+        "predtr1= mod.predict(trainX)\n",
+        "acc1 = accuracy_score(trainY, predtr)\n",
+        "acc1 #92.6\n",
+        "trainX.dtypes\n",
+        "trainX.cabinnum = trainX.cabinnum.astype(int)\n",
+        "testX.cabinnum = testX.cabinnum.astype(int)\n",
+        "predtst1 = mod.predict(testX[testX.columns[:]])\n"
+      ],
+      "metadata": {
+        "id": "h9r9iF2KtKD3"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "submission1 = glmop#pd.DataFrame({'PassengerId':testX['PassengerId'], 'Transported':predtst})\n",
+        "submission1.Transported= predtst1.astype(bool)\n",
+        "submission1.head()"
+      ],
+      "metadata": {
+        "id": "QxA88XjKtL2w"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn.ensemble import GradientBoostingClassifier\n",
+        "modelxg1 = GradientBoostingClassifier(\n",
+        "    max_depth=2, \n",
+        "    n_estimators=750, \n",
+        "    learning_rate=0.7)\n",
+        "modelxg1.fit(trainX, trainY)\n",
+        "from sklearn.metrics import accuracy_score\n",
+        "predtr= modelxg1.predict(trainX)\n",
+        "acc = accuracy_score(trainY, predtr)\n",
+        "acc #92.6% training accuracy"
+      ],
+      "metadata": {
+        "id": "_MtV1cUStNoC"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#GB Output\n",
+        "submission = glmop\n",
+        "submission.Transported= predtst.astype(bool)\n",
+        "submission.head()\n",
+        "submission.to_csv('/content/drive/My Drive/EAPROJECT/newnewoop.csv',index=False)"
+      ],
+      "metadata": {
+        "id": "hMBasQ08tPSz"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#rf\n",
+        "from sklearn.ensemble import RandomForestClassifier\n",
+        "modelrf = RandomForestClassifier(n_estimators=120)\n",
+        "modelrf.fit(trainX, trainY)\n",
+        "predrf = modelrf.predict(trainX)\n",
+        "predrft = modelrf.predict(testX)\n",
+        "accrf = accuracy_score(trainY, predrf)\n",
+        "accrf #96.2%\n",
+        "submissionr = glmop\n",
+        "submissionr.Transported= predrft.astype(bool)\n",
+        "submissionr.head()"
+      ],
+      "metadata": {
+        "id": "3mqzDAYytQcb"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "submissionr.to_csv('/content/drive/My Drive/EAoutputs/rf.csv',index=False)"
+      ],
+      "metadata": {
+        "id": "c6ZCIhEVtQdy"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#dt\n",
+        "from sklearn.tree import DecisionTreeClassifier\n",
+        "modeldt = DecisionTreeClassifier(random_state=12)\n",
+        "modeldt.fit(trainX, trainY)\n",
+        "preddt = modeldt.predict(testX)\n",
+        "preddtr = modeldt.predict(trainX)\n",
+        "accdt= accuracy_score(trainY, preddtr) #accuracy 99.9%\n",
+        "accdt\n",
+        "submissiondt = glmop\n",
+        "submissiondt.Transported= preddt.astype(bool)\n",
+        "submissiondt.head()"
+      ],
+      "metadata": {
+        "id": "RYvXEXHrtTDb"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "submissiondt.to_csv('/content/drive/My Drive/EAoutputs/rf.csv',index=False)"
+      ],
+      "metadata": {
+        "id": "Y2vfNjFRtVJj"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
